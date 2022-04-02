@@ -262,6 +262,14 @@ export class SeedRandom {
         return this.random();
     }
 
+    public range(from: number, to: number) {
+        return from + (this.random() * (to - from));
+    }
+
+    public rangeInt(from: number, to: number) {
+        return Math.floor(from + (this.random() * (to - from)));
+    }
+
     constructor(seed: string) {
         this.seed = seed;
     }

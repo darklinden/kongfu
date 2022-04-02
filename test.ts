@@ -3,6 +3,7 @@ export { };
 import { ICharacter } from "./Character";
 import { SeedRandom } from "./SeedRandom";
 import { WarCalc } from "./WarCalc";
+import * as readline from 'readline';
 
 // // 暴击 韧性 计算
 // {
@@ -49,11 +50,14 @@ import { WarCalc } from "./WarCalc";
 //     console.log('penetratePercent:', penetratePercent);
 // }
 
+
 const player: ICharacter = {
     name: '玩家',
     level: 111,
     attack: 30000,
     hp: 1000000,
+    hpMax: 1000000,
+    heal: 100,
     defense: 6000,
     penetrate: 6000,
     hit: 3000,
@@ -70,26 +74,26 @@ const player: ICharacter = {
         {
             name: '挖鼻孔',
             atkMul: 2,
-            duration: 1200,
+            duration: 1000,
             coolDown: 2000
         },
         {
             name: '抓头发',
             atkMul: 2,
-            duration: 1200,
-            coolDown: 2000
+            duration: 1000,
+            coolDown: 1000
         },
         {
             name: '戳眼睛',
             atkMul: 2,
-            duration: 1200,
-            coolDown: 2000
+            duration: 1000,
+            coolDown: 1000
         },
         {
             name: '踢jj',
             atkMul: 4,
-            duration: 3000,
-            coolDown: 5000
+            duration: 1000,
+            coolDown: 2000
         },
     ]
 }
@@ -97,8 +101,10 @@ const player: ICharacter = {
 const boss: ICharacter = {
     name: 'Boss',
     level: 111,
-    attack: 30000,
-    hp: 1000000,
+    attack: 3000,
+    hp: 10000000,
+    hpMax: 10000000,
+    heal: 10,
     defense: 6000,
     penetrate: 6000,
     hit: 3000,
@@ -114,29 +120,38 @@ const boss: ICharacter = {
         },
         {
             name: '挖鼻孔',
-            atkMul: 1.5,
-            duration: 2000,
+            atkMul: 2,
+            duration: 1000,
             coolDown: 3000
         },
         {
             name: '抓头发',
             atkMul: 2,
-            duration: 1200,
-            coolDown: 2000
+            duration: 1000,
+            coolDown: 3000
         },
         {
             name: '戳眼睛',
             atkMul: 2,
-            duration: 1200,
-            coolDown: 2000
+            duration: 1000,
+            coolDown: 3000
         },
         {
             name: '踢jj',
             atkMul: 4,
-            duration: 3000,
+            duration: 1000,
             coolDown: 5000
         },
     ]
 }
 
-WarCalc.calcWinner(player, boss, new SeedRandom('' + Math.random()));
+let rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
+
+rl.question('使用随机种子：', (answer) => {
+    WarCalc.calcWinner(player, boss, new SeedRandom(answer));
+    rl.close();
+});
+

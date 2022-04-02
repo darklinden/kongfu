@@ -139,17 +139,21 @@ export namespace WarCalc {
 
         do {
             let t = 0; // 毫秒
+            let pre_heal = t;
 
             let playerSkills: ISkill[] = [...player.skills];
             let bossSkills: ISkill[] = [...boss.skills];
+
+            let playerCooldowns: ISkill[] = [];
+            let bossCooldowns: ISkill[] = [];
 
             // 随机获取一个技能
             let pi = sr.int32() % playerSkills.length;
             let player_attack = playerSkills.splice(pi, 1)[0];
             // 标记时间戳
             player_attack.lastUse = t;
-            // 将技能放在数组末尾
-            playerSkills.push(player_attack);
+            // 将技能放在冷却计时组头
+            playerCooldowns.unshift(player_attack);
 
             changeHp(player, boss, player_attack, sr);
 
@@ -165,8 +169,8 @@ export namespace WarCalc {
             let boss_attack = bossSkills.splice(bi, 1)[0];
             // 标记时间戳
             boss_attack.lastUse = t;
-            // 将技能放在数组末尾
-            bossSkills.push(boss_attack);
+            // 将技能放在冷却计时组头
+            bossCooldowns.unshift(boss_attack);
 
             changeHp(boss, player, boss_attack, sr);
 
@@ -184,15 +188,34 @@ export namespace WarCalc {
 
                 if (player_next < boss_next) {
                     t = player_next;
-                    // 玩家回合，玩家攻击
-                    console.log('玩家回合, 玩家攻击');
 
-                    pi = sr.int32() % (playerSkills.length - 1);
+                    while (t - pre_heal >= 1000) {
+                        pre_heal += 1000;
+                        player.hp = player.hp + player.heal > player.hpMax ? player.hpMax : player.hp + player.heal;
+                        console.log(player.name, '恢复了', player.heal, '点生命值，当前生命值', player.hp);
+                        boss.hp = boss.hp + boss.heal > boss.hpMax ? boss.hpMax : boss.hp + boss.heal;
+                        console.log(boss.name, '恢复了', boss.heal, '点生命值，当前生命值', boss.hp);
+                    }
+
+                    // 刷新技能冷却
+                    if (playerCooldowns.length) {
+                        for (let i = playerCooldowns.length - 1; i >= 0; i--) {
+                            if (playerCooldowns[i].lastUse + playerCooldowns[i].coolDown > t) {
+                                // 该技能已冷却
+                                playerSkills.push(...playerCooldowns.splice(i, 1))
+                            }
+                        }
+                    }
+
+                    // 玩家回合，玩家攻击
+                    console.log('\n玩家回合, 玩家攻击');
+
+                    pi = sr.int32() % (playerSkills.length);
                     player_attack = playerSkills.splice(pi, 1)[0];
                     // 标记时间戳
                     player_attack.lastUse = t;
-                    // 将技能放在数组末尾
-                    playerSkills.push(player_attack);
+                    // 将技能放在冷却计时组头
+                    playerCooldowns.unshift(player_attack);
 
                     changeHp(player, boss, player_attack, sr);
 
@@ -205,15 +228,34 @@ export namespace WarCalc {
                 }
                 else {
                     t = boss_next;
-                    // Boss回合，Boss攻击
-                    console.log('Boss回合, Boss攻击');
 
-                    bi = sr.int32() % (bossSkills.length - 1);
+                    while (t - pre_heal >= 1000) {
+                        pre_heal += 1000;
+                        player.hp = player.hp + player.heal > player.hpMax ? player.hpMax : player.hp + player.heal;
+                        console.log(player.name, '恢复了', player.heal, '点生命值，当前生命值', player.hp);
+                        boss.hp = boss.hp + boss.heal > boss.hpMax ? boss.hpMax : boss.hp + boss.heal;
+                        console.log(boss.name, '恢复了', boss.heal, '点生命值，当前生命值', boss.hp);
+                    }
+
+                    // 刷新技能冷却
+                    if (bossCooldowns.length) {
+                        for (let i = bossCooldowns.length - 1; i >= 0; i--) {
+                            if (bossCooldowns[i].lastUse + bossCooldowns[i].coolDown > t) {
+                                // 该技能已冷却
+                                bossSkills.push(...bossCooldowns.splice(i, 1))
+                            }
+                        }
+                    }
+
+                    // Boss回合，Boss攻击
+                    console.log('\nBoss回合, Boss攻击');
+
+                    bi = sr.int32() % (bossSkills.length);
                     boss_attack = bossSkills.splice(bi, 1)[0];
                     // 标记时间戳
                     boss_attack.lastUse = t;
-                    // 将技能放在数组末尾
-                    bossSkills.push(boss_attack);
+                    // 将技能放在冷却计时组头
+                    bossCooldowns.unshift(boss_attack);
 
                     changeHp(boss, player, boss_attack, sr);
 

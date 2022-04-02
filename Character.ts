@@ -25,6 +25,10 @@ export interface ICharacter {
     attack: number;
     // 生命值
     hp: number;
+    // 生命值
+    hpMax: number;
+    // 生命恢复
+    heal: number;
 
     // 护甲
     defense: number;
